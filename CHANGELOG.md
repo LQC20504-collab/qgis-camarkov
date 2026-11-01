@@ -1,5 +1,15 @@
 # Changelog
 
+## 未发布
+
+插件包内容与 0.1.0 相同（没有代码改动），以下为仓库侧的安装防呆改进。
+
+- 新增 `scripts/check_install.py`：体检安装位置、metadata 可解析性、引擎副本与启用状态。
+- README 增加醒目提示：**必须用 Releases 里的 `qgis_camarkov-<版本>.zip`**，
+  不要用仓库首页的 Code → Download ZIP（其顶层目录 `qgis-camarkov-master/` 会导致
+  `ModuleNotFoundError`）。
+- README 增加「故障排查」一节，覆盖有头/无头两种安装失败的常见原因。
+
 ## 0.1.0
 
 首个版本。

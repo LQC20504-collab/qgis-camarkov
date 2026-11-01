@@ -32,14 +32,36 @@
 
 ## 安装
 
+> ### ⚠️ 别点仓库首页的绿色 Code 按钮
+>
+> 那个 **Code → Download ZIP** 下载的是 GitHub 的**源码快照**，压缩包顶层目录叫
+> `qgis-camarkov-master/`（GitHub 用「仓库名-分支」命名归档），真正的插件包还在里面一层。
+>
+> QGIS 的 ZIP 安装会把最短的 `metadata.txt` 所在**目录**当作插件名去 `import`，
+> 于是拿到 `qgis-camarkov-master/qgis_camarkov` —— 既含斜杠又含连字符，必然失败：
+>
+> ```
+> ModuleNotFoundError: No module named 'qgis-camarkov-master/qgis_camarkov'
+> ```
+>
+> **要装的是 Releases 里的 `qgis_camarkov-<版本>.zip`**，它的顶层只有一个 `qgis_camarkov/`。
+
 ### 从 ZIP 安装（推荐）
 
-1. 下载 `qgis_camarkov-<version>.zip`（Release 附件）
-2. QGIS → 插件 → 管理并安装插件 → 从 ZIP 安装
-3. 勾选启用
+1. 打开 **Releases** 页面 → 展开对应版本的 **Assets**（不要点 Code）
+2. 下载 `qgis_camarkov-0.1.0.zip`
+3. QGIS → 插件 → 管理并安装插件 → **从 ZIP 安装** → 选这个文件
+4. 在「已安装」里勾选「CA-Markov 土地利用变化预测」
+5. 重启 QGIS；处理工具箱里应出现 **CA-Markov** 分组下的三项
 
-ZIP 的根目录必须是 `qgis_camarkov/`，`metadata.txt` 就在里面——
-插件安装器按这个规则识别包名。
+装完可以自检一遍：
+
+```bash
+python scripts/check_install.py
+```
+
+它会检查安装位置、`metadata.txt` 能否解析、引擎副本是否在位、插件是否已启用；
+装错位置时直接打印出该删哪个目录。
 
 ### 开发期（免打包）
 
@@ -92,6 +114,36 @@ python scripts/build_zip.py                                      # 打包
 
 引擎在 `qgis_camarkov/resources/engine/` 是 **vendored 副本**，不要在本地改它：
 改动提到 SharpGIS 上游，再用 `scripts/sync_engine.py` 同步过来。
+
+## 故障排查
+
+**`ModuleNotFoundError: No module named 'qgis-camarkov-master/qgis_camarkov'`**
+
+装的是源码包。删掉多余的一层，改用 Release 附件：
+
+```bat
+rmdir /S /Q "%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\qgis-camarkov-master"
+```
+
+然后按上面「从 ZIP 安装」重装 `qgis_camarkov-0.1.0.zip`。
+
+**插件管理器里显示「已安装」但处理工具箱没有 CA-Markov**
+
+先跑 `python scripts/check_install.py`。常见原因：
+`metadata.txt` 里出现了 `%`（configparser 插值失败）、或插件在 `QGIS3.ini` 里被禁用
+（`python scripts/enable_plugin.py` 可修复）。
+
+**`qgis_process list` 看不到 `camarkov:*`**
+
+无头模式下插件默认不加载。先 `python scripts/enable_plugin.py`，
+再确认 `QGIS_PLUGINPATH` 没指到别的目录。另外从 conda 里启动 `qgis_process` 时，
+务必清掉 `PYTHONHOME` / `PYTHONPATH` —— 它们指向 conda 的 stdlib，与 QGIS 自带解释器
+混用会让 QGIS 直接以 `0xC0000409` 崩溃（没有 traceback，只有退出码）。
+
+**报「找不到可用的 Python 解释器」或缺少依赖**
+
+插件优先用 QGIS 自带的 Python。若它缺包，错误信息里会给出可直接复制执行的
+`pip install` 命令；也可以设 `CAMARKOV_PYTHON` 环境变量指向自己的 conda 环境。
 
 ## 许可证
 
