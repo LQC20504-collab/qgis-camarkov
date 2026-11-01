@@ -1,0 +1,19 @@
+本目录下的 camarkov_engine.py 与 lang_en.py 来自 SharpGIS 项目，原样复制，未做修改。
+
+来源仓库：https://github.com/LQC20504-collab/SharpGIS
+来源路径：Engine/camarkov_engine.py、Engine/lang_en.py
+来源提交：73769112e1ba375cfe7928a92a517ffd183063e2
+同步日期：2026-11-01
+
+文件哈希（sha256）：
+  84dd40b5ef398574c819489b410a354c99d671b21049128c31ceb10f40a802de  camarkov_engine.py
+  5dc026d266683a5ed5a9cb0e78c09deddd285568359b6c0b027dd8b2e8a935e7  lang_en.py
+
+上游许可证：MIT
+Copyright (c) 2026 SharpGIS contributors
+
+按照 MIT 许可证，这两个文件在本仓库中继续以 MIT 授权；本仓库其它部分为
+GPL-2.0-or-later。MIT 与 GPL 兼容，合并分发不产生冲突。
+
+不要在本目录直接修改引擎：改动请提到 SharpGIS 上游，再用
+scripts/sync_engine.py 同步过来，否则两边会漂移。
