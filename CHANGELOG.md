@@ -2,7 +2,14 @@
 
 ## 未发布
 
-插件包内容与 0.1.0 相同（没有代码改动），以下为仓库侧的安装防呆改进。
+为上架 QGIS 官方插件仓库（plugins.qgis.org）做准备，插件包内容有变动：
+
+- `metadata.txt` 的 `description` / `about` 补齐英文描述（官方上传清单硬性要求）。
+- 插件包根目录新增 `LICENSE`：此前它只存在于仓库根，不会被 `build_zip.py` 打进包，
+  而官方校验要求 zip 内插件根目录必须有名为 `LICENSE` 的文件。
+- 插件包根目录新增简短 `README.md`；完整文档仍见仓库根 `README.md`。
+
+以下为仓库侧的安装防呆改进（无代码改动）：
 
 - 新增 `scripts/check_install.py`：体检安装位置、metadata 可解析性、引擎副本与启用状态。
 - README 增加醒目提示：**必须用 Releases 里的 `qgis_camarkov-<版本>.zip`**，

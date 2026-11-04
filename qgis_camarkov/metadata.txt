@@ -1,7 +1,16 @@
 [general]
 name=CA-Markov 土地利用变化预测
-description=基于 CA-Markov 与随机森林转移潜力的土地利用变化分析、模型训练与情景预测。
-about=调用内置的 Python 引擎完成 Markov 转移矩阵、81 类转移潜力随机森林、邻域约束的元胞自动机分配、多步预测与精度评价。提供三个处理算法：转移分析（秒级预览转移矩阵）、训练模型、变化预测。引擎来自 SharpGIS 项目（MIT），以子进程方式运行，不污染 QGIS 进程内的 GDAL。
+description=CA-Markov land-use change analysis, model training and scenario prediction based on random-forest transition potentials.
+about=CA-Markov land change modelling exposed as three Processing algorithms: transfer
+ analysis (fast transition-matrix preview), model training (random-forest transition
+ potential maps) and multi-step scenario prediction with accuracy assessment.
+ The bundled engine (from the SharpGIS project, MIT licensed) runs in a separate Python
+ subprocess, so it never loads GDAL into the QGIS process.
+ Requires numpy, scipy, scikit-learn, rasterio and matplotlib; QGIS 3.28 or newer
+ (validated on 3.40.15 LTR). All input rasters must share the same grid and CRS.
+ Outputs: a prediction GeoTIFF, a report, figures and a metrics JSON, shown in a
+ dockable five-tab result panel.
+ 中文：提供转移分析、训练模型、变化预测三个处理算法，结果以非模态停靠面板展示。
 version=0.1.0
 qgisMinimumVersion=3.28
 qgisMaximumVersion=3.99
@@ -17,4 +26,4 @@ hasProcessingProvider=True
 experimental=False
 deprecated=False
 supportsQt6=True
-changelog=0.1.0 - 首次发布：camarkov:analyze / camarkov:train / camarkov:predict 三个处理算法，结果停靠面板，可切换中英文。
+changelog=0.1.0 - First release: three Processing algorithms (analyze / train / predict), dockable five-tab result panel, bilingual UI.

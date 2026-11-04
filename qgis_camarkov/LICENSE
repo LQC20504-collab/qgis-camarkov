@@ -1,0 +1,35 @@
+CA-Markov 土地利用变化预测 QGIS 插件
+Copyright (C) 2026 SharpGIS contributors
+
+本程序是自由软件：你可以依据自由软件基金会发布的 GNU 通用公共许可证
+（第 2 版，或你选择的任何更新版本）的条款重新发布和/或修改它。
+
+本程序分发时希望它有用，但不提供任何担保，甚至不提供适销性或特定用途
+适用性的默示担保。详见 GNU 通用公共许可证。
+
+你应当已随本程序收到 GNU 通用公共许可证的副本；如果没有，见
+<https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>。
+
+----------------------------------------------------------------------
+许可证适用范围
+----------------------------------------------------------------------
+
+本仓库整体采用 GPL-2.0-or-later，但以下文件例外：
+
+  qgis_camarkov/resources/engine/camarkov_engine.py
+  qgis_camarkov/resources/engine/lang_en.py
+
+这两个文件来自 SharpGIS 项目，继续以 MIT 许可证授权（全文见同目录下的
+LICENSE 文件）。MIT 与 GPL 兼容，因此可以与本仓库其它部分一起分发。
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+Files under qgis_camarkov/resources/engine/ remain MIT licensed; see the
+LICENSE file in that directory.
