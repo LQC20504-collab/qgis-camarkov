@@ -19,7 +19,7 @@
 """
 
 import os
-import subprocess
+import subprocess  # nosec B404
 import sys
 
 #: 引擎 import 的第三方包（顺序与错误提示保持一致）。
@@ -154,7 +154,7 @@ def probe(exe_path):
         "print('MISSING=' + ','.join(miss))\n" % (list(REQUIRED_PACKAGES),)
     )
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # nosec B603
             [exe_path, "-c", code],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

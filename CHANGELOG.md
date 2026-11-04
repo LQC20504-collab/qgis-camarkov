@@ -1,8 +1,18 @@
 # Changelog
 
-## 未发布
+## 0.1.1
 
-为上架 QGIS 官方插件仓库（plugins.qgis.org）做准备，插件包内容有变动：
+解除 plugins.qgis.org 的 **Blocked** 状态，无功能改动：
+
+- 在 14 行加上精准的 `# nosec Bxxx` 行内标注：B110（清理临时文件/进程树时的
+  try/except/pass）、B404/B603（子进程隔离引擎所必需的 subprocess 调用）、
+  B607（Windows 下 `taskkill` 回退）。官方扫描器用 `bandit -t <启用规则>` 且
+  **省略 `-ll`**，因此本地默认扫描里的 LOW 也会全部报出；而 Bandit 检查的 severity
+  固定为 critical、`issues_found == 0` 才算通过，任一 finding 都会让版本被 Blocked。
+- `resources/engine/camarkov_engine.py` 的两处标注属于打包适配。该文件是 vendored 副本，
+  下次执行 `scripts/sync_engine.py` 时需把这两行注释带到 SharpGIS 上游。
+
+以下为此前为上架 QGIS 官方插件仓库（plugins.qgis.org）做的准备，插件包内容有变动：
 
 - `metadata.txt` 的 `description` / `about` 补齐英文描述（官方上传清单硬性要求）。
 - 插件包根目录新增 `LICENSE`：此前它只存在于仓库根，不会被 `build_zip.py` 打进包，

@@ -663,7 +663,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
 
             if os.path.isdir(work_dir):
                 shutil.rmtree(work_dir, ignore_errors=True)
-        except Exception:
+        except Exception:  # nosec B110
             pass
 
         if result is not None and (result.cancelled or not result.ok):

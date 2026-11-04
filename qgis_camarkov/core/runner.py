@@ -17,7 +17,7 @@ feedback 做端到端测试。
 
 import os
 import queue
-import subprocess
+import subprocess  # nosec B404
 import sys
 import threading
 
@@ -107,7 +107,7 @@ def run_engine(
         )
 
     try:
-        process = subprocess.Popen(
+        process = subprocess.Popen(  # nosec B603
             command,
             cwd=os.path.dirname(engine_script),
             stdout=subprocess.PIPE,
@@ -132,7 +132,7 @@ def run_engine(
         try:
             for line in stream:
                 lines.put((tag, line))
-        except Exception:  # 进程被杀时读管道会抛，忽略即可
+        except Exception:  # 进程被杀时读管道会抛，忽略即可  # nosec B110
             pass
         finally:
             lines.put((tag, None))
@@ -186,7 +186,7 @@ def run_engine(
         try:
             if stream is not None:
                 stream.close()
-        except Exception:
+        except Exception:  # nosec B110
             pass
 
     result.elapsed_seconds = _now() - started
@@ -229,27 +229,27 @@ def _kill_tree(process):
         return
     if sys.platform.startswith("win"):
         try:
-            subprocess.run(
+            subprocess.run(  # nosec B603, B607
                 ["taskkill", "/T", "/F", "/PID", str(process.pid)],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 timeout=10,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
-        except Exception:
+        except Exception:  # nosec B110
             pass
     else:
         try:
             os.killpg(os.getpgid(process.pid), 9)
-        except Exception:
+        except Exception:  # nosec B110
             pass
     try:
         process.kill()
-    except Exception:
+    except Exception:  # nosec B110
         pass
     try:
         process.wait(timeout=10)
-    except Exception:
+    except Exception:  # nosec B110
         pass
 
 

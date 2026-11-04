@@ -77,7 +77,7 @@ def _load_translations():
         table = getattr(module, "EN", None)
         if isinstance(table, dict):
             _EN = table
-    except Exception:
+    except Exception:  # nosec B110
         pass
 
 
@@ -1793,7 +1793,7 @@ def _force_utf8():
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(encoding="utf-8", errors="replace")
-        except Exception:
+        except Exception:  # nosec B110
             pass
 
 
