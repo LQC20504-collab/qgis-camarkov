@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.2
+
+QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**无功能改动**。
+
+- 三个文件里的扁平枚举改为 scoped 写法：`Qt.AlignmentFlag.*`（10 处）、
+  `Qt.TransformationMode.SmoothTransformation`、`Qt.DockWidgetArea.RightDockWidgetArea`、
+  `QTableWidget.EditTrigger.NoEditTriggers`（3 处）、`QHeaderView.ResizeMode.*`（4 处）、
+  `QgsProcessing.SourceType.TypeRaster`（2 处）。
+- `plugin.py` 的 `QAction` 改从 `qgis.PyQt.QtGui` 导入：Qt6 已把它移出 `QtWidgets`
+  （官方检查器未列此项，但真实 Qt6 下会 ImportError）。Qt5 / Qt6 双端均实测可导入。
+- `metadata.txt`：`qgisMaximumVersion=4.99`（进入 QGIS 4 Ready 列表），
+  删除已废弃且从 QGIS core 移除的 `supportsQt6=True`。
+- 关键前提：QGIS 3.40 (PyQt5) **同样支持 scoped 枚举**，所以直接按官方建议改即可双版本兼容，
+  不需要运行时兼容层（官方迁移脚本默认就是「保持 QGIS 3 兼容」的改法）。
+- 验证：QGIS 3.40.15 真实环境三模块导入 + 11 个 scoped 枚举与扁平值相等 +
+  真实构造 `QgsProcessingParameterMultipleLayers` 全过；PyQt6 6.12 下 10 个 Qt 枚举全部可解析；
+  本地 AST 等价检查 21 → 0（文件/行/列与官方清单完全一致）；pytest 47 passed / 5 skipped；
+  bandit 0、detect-secrets 0。
+- `QgsProcessing.SourceType.TypeRaster` 只能在 QGIS 4 运行时最终确认，
+  其 scope 名取自官方检查器输出；QGIS 3.40 上已实测与扁平写法等价。
+
 ## 0.1.1
 
 解除 plugins.qgis.org 的 **Blocked** 状态，无功能改动：

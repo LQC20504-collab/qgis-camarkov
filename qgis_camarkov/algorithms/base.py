@@ -99,7 +99,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             QgsProcessingParameterMultipleLayers(
                 "PERIODS",
                 "土地利用分期栅格（按时间从旧到新，至少两期）",
-                QgsProcessing.TypeRaster,
+                QgsProcessing.SourceType.TypeRaster,
             )
         )
         self.addParameter(
@@ -159,7 +159,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             QgsProcessingParameterMultipleLayers(
                 "TRAIN_DRIVERS",
                 "训练驱动因子栅格（顺序即特征顺序；随机森林模式必需）",
-                QgsProcessing.TypeRaster,
+                QgsProcessing.SourceType.TypeRaster,
                 optional=True,
             )
         )

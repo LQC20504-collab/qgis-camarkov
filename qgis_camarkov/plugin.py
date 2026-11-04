@@ -14,7 +14,7 @@ import os
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QAction
 
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 MENU_NAME = "&CA-Markov"
@@ -105,5 +105,5 @@ class CamarkovPlugin:
             self.result_dock.deleteLater()
 
         self.result_dock = CamarkovResultDock(self.iface, metrics_path)
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.result_dock)
+        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.result_dock)
         self.result_dock.show()

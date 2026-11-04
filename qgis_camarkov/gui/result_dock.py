@@ -43,12 +43,12 @@ class _ScaledImage(QWidget):
         self._pixmap = QPixmap(path) if path and os.path.isfile(path) else QPixmap()
 
         self._label = QLabel(self)
-        self._label.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        self._label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         # 白底 PNG 在暗色主题下会刺眼，加一圈边框把它框住即可，不改图本身
         self._label.setStyleSheet("border: 1px solid palette(mid); padding: 2px;")
 
         self._title = QLabel(title, self)
-        self._title.setAlignment(Qt.AlignHCenter)
+        self._title.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(4, 4, 4, 8)
@@ -64,7 +64,7 @@ class _ScaledImage(QWidget):
         """按当前宽度等比缩放；宽度未知时先不动。"""
         width = max(self._label.width(), 200)
         self._label.setPixmap(
-            self._pixmap.scaledToWidth(width, Qt.SmoothTransformation)
+            self._pixmap.scaledToWidth(width, Qt.TransformationMode.SmoothTransformation)
         )
 
     def resizeEvent(self, event):  # noqa: N802  (Qt 约定)
@@ -223,7 +223,7 @@ class CamarkovResultDock(QgsDockWidget):
         table.setColumnCount(size)
         table.setHorizontalHeaderLabels(names)
         table.setVerticalHeaderLabels(names)
-        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
         for i in range(size):
             row = matrix[i] if i < len(matrix) else []
@@ -231,11 +231,11 @@ class CamarkovResultDock(QgsDockWidget):
                 value = row[j] if j < len(row) else 0
                 text = ("%.4f" % value) if as_probability else ("%d" % int(round(value)))
                 item = QTableWidgetItem(text)
-                item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
                 table.setItem(i, j, item)
 
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
 
     def _tab_accuracy(self):
         """精度页：OA/Kappa + 各类 PA/UA/F1 + 混淆矩阵。"""
@@ -264,7 +264,7 @@ class CamarkovResultDock(QgsDockWidget):
         names = metrics_mod.class_names(self.data)
         by_class = QTableWidget(len(names), 4)
         by_class.setHorizontalHeaderLabels(["类别", "PA", "UA", "F1"])
-        by_class.setEditTriggers(QTableWidget.NoEditTriggers)
+        by_class.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         for i, name in enumerate(names):
             values = [name]
             for key in ("pa", "ua", "f1"):
@@ -272,9 +272,9 @@ class CamarkovResultDock(QgsDockWidget):
                 values.append("%.4f" % (series[i] if i < len(series) else 0))
             for column, text in enumerate(values):
                 item = QTableWidgetItem(text)
-                item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter if column else Qt.AlignLeft)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter if column else Qt.AlignmentFlag.AlignLeft)
                 by_class.setItem(i, column, item)
-        by_class.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        by_class.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         layout.addWidget(by_class)
 
         confusion = QTableWidget()
@@ -292,14 +292,14 @@ class CamarkovResultDock(QgsDockWidget):
 
         table = QTableWidget(len(items), 2)
         table.setHorizontalHeaderLabels(["驱动因子", "重要性"])
-        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         for i, item in enumerate(items):
             name = QTableWidgetItem(str(item.get("name", "")))
             value = QTableWidgetItem("%.4f" % (item.get("importance") or 0))
-            value.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            value.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             table.setItem(i, 0, name)
             table.setItem(i, 1, value)
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         return table
 
     def _tab_figures(self):

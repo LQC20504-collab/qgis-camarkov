@@ -11,9 +11,9 @@ about=CA-Markov land change modelling exposed as three Processing algorithms: tr
  Outputs: a prediction GeoTIFF, a report, figures and a metrics JSON, shown in a
  dockable five-tab result panel.
  中文：提供转移分析、训练模型、变化预测三个处理算法，结果以非模态停靠面板展示。
-version=0.1.1
+version=0.1.2
 qgisMinimumVersion=3.28
-qgisMaximumVersion=3.99
+qgisMaximumVersion=4.99
 author=SharpGIS contributors
 email=LQC20504@outlook.com
 category=Raster
@@ -25,5 +25,4 @@ tracker=https://github.com/LQC20504-collab/qgis-camarkov/issues
 hasProcessingProvider=True
 experimental=False
 deprecated=False
-supportsQt6=True
-changelog=0.1.1 - Add explicit Bandit nosec annotations for the intentionally used subprocess calls and best-effort cleanup handlers; no functional changes.
+changelog=0.1.2 - QGIS 4 / Qt 6 compatibility: all 21 flat enums reported by the Qt6 Check are now scoped, QAction moved to QtGui, the deprecated temporary Qt6 flag removed and qgisMaximumVersion set to 4.99. No functional changes.
