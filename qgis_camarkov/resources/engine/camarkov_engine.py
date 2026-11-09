@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-SharpGIS · 土地利用变化预测引擎（CA-Markov + 随机森林转移潜力）
+土地利用变化预测引擎（CA-Markov + 随机森林转移潜力）
 
 命令行：
     python camarkov_engine.py --job job.json     # 按 C# 下发的参数执行
@@ -931,7 +931,7 @@ def write_report(path, cfg, ctx):
     """生成纯文本报告。ctx 汇总所有中间结果。"""
     names = ctx["names"]
     lines = []
-    lines.append(L("SharpGIS · 土地利用变化预测报告"))
+    lines.append(L("土地利用变化预测报告"))
     lines.append("=" * 78)
     lines.append(L("生成时间：") + time.strftime("%Y-%m-%d %H:%M:%S"))
     lines.append("")
@@ -1799,7 +1799,7 @@ def _force_utf8():
 
 def main(argv=None):
     _force_utf8()
-    ap = argparse.ArgumentParser(description=L("SharpGIS CA-Markov 引擎"))
+    ap = argparse.ArgumentParser(description=L("CA-Markov 引擎"))
     ap.add_argument("--job", help=L("参数 JSON 路径"))
     ap.add_argument("--selftest", action="store_true", help=L("运行纯函数自检"))
     args = ap.parse_args(argv)

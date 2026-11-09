@@ -41,8 +41,10 @@ jobs:
         run: |
           python scripts/build_zip.py
           python - <<'PY'
-          import zipfile, sys
-          archive = zipfile.ZipFile("dist/qgis_camarkov-0.1.0.zip")
+          import glob, zipfile, sys
+          paths = sorted(glob.glob("dist/qgis_camarkov-*.zip"))
+          assert paths, "no plugin zip was built"
+          archive = zipfile.ZipFile(paths[-1])
           tops = {n.split("/")[0] for n in archive.namelist()}
           # ZIP 安装要求只有一个顶层包目录，且名字必须是合法标识符
           assert tops == {"qgis_camarkov"}, tops

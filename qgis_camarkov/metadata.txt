@@ -4,7 +4,7 @@ description=CA-Markov land-use change analysis, model training and scenario pred
 about=CA-Markov land change modelling exposed as three Processing algorithms: transfer
  analysis (fast transition-matrix preview), model training (random-forest transition
  potential maps) and multi-step scenario prediction with accuracy assessment.
- The bundled engine (from the SharpGIS project, MIT licensed) runs in a separate Python
+ The bundled engine runs in a separate Python
  subprocess, so it never loads GDAL into the QGIS process.
  Requires numpy, scipy, scikit-learn, rasterio and matplotlib; QGIS 3.28 or newer
  (validated on 3.40.15 LTR). All input rasters must share the same grid and CRS.

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""引擎自检：直接跑 vendored 副本的 ``--selftest``。
+"""引擎自检：直接跑随包附带的引擎副本的 ``--selftest``。
 
 这一步能覆盖转移矩阵、最大余数预算、邻域与精度指标等纯函数逻辑，
 而且**不需要 rasterio**（引擎在 import rasterio 之前就返回了），

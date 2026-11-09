@@ -18,11 +18,15 @@ QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**�
   真实构造 `QgsProcessingParameterMultipleLayers` 全过；PyQt6 6.12 下 10 个 Qt 枚举全部可解析；
   本地 AST 等价检查 21 → 0（文件/行/列与官方清单完全一致）；pytest 47 passed / 5 skipped；
   bandit 0、detect-secrets 0。
-- `metadata.txt`：`author` 从 "SharpGIS contributors" 改为 GitHub 用户名
-  `LQC20504-collab`（`gh api user` 确认的登录名，与仓库 owner / 插件 Maintainer 一致）；
-  `about` 删去末尾中文行，简介全篇英文。引擎来源 "SharpGIS project" 属技术事实说明，保留。
+- `metadata.txt`：`author` 改为 GitHub 用户名 `LQC20504-collab`
+  （`gh api user` 确认的登录名，与仓库 owner / 插件 Maintainer 一致）；
+  `about` 删去末尾中文行，简介全篇英文。
 - `QgsProcessing.SourceType.TypeRaster` 只能在 QGIS 4 运行时最终确认，
   其 scope 名取自官方检查器输出；QGIS 3.40 上已实测与扁平写法等价。
+- 清理 `metadata.txt`、两份 `LICENSE`、`SOURCE.txt`、README、CHANGELOG、
+  `scripts/sync_engine.py` 及引擎副本中的品牌与来源文字，使插件完全独立；
+  版权声明保留，权利人改为 `LQC20504-collab`。引擎副本的两个中文 i18n 键
+  与 `lang_en.py` 译文表已同步更新。
 
 ## 0.1.1
 
@@ -33,8 +37,8 @@ QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**�
   B607（Windows 下 `taskkill` 回退）。官方扫描器用 `bandit -t <启用规则>` 且
   **省略 `-ll`**，因此本地默认扫描里的 LOW 也会全部报出；而 Bandit 检查的 severity
   固定为 critical、`issues_found == 0` 才算通过，任一 finding 都会让版本被 Blocked。
-- `resources/engine/camarkov_engine.py` 的两处标注属于打包适配。该文件是 vendored 副本，
-  下次执行 `scripts/sync_engine.py` 时需把这两行注释带到 SharpGIS 上游。
+- `resources/engine/camarkov_engine.py` 的两处标注属于打包适配。该文件是随包附带的
+  引擎副本，下次执行 `scripts/sync_engine.py` 同步时需一并带上这两行注释。
 
 以下为此前为上架 QGIS 官方插件仓库（plugins.qgis.org）做的准备，插件包内容有变动：
 

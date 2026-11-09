@@ -1,6 +1,6 @@
 # QGIS CA-Markov 插件
 
-把 [SharpGIS](https://github.com/LQC20504-collab/SharpGIS) 的 CA-Markov 土地利用变化预测引擎
+把 CA-Markov 土地利用变化预测引擎
 包装成 QGIS 处理工具箱里的三个算法。引擎以**子进程**方式运行，用独立的 Python 解释器，
 不占用 QGIS 进程，因此不会与 QGIS 自带的 GDAL 冲突。
 
@@ -108,12 +108,12 @@ JSON
 ```bash
 pytest -m "not qgis"     # 纯逻辑 + 引擎端到端，不需要 QGIS
 pytest -m qgis           # 通过 qgis_process 跑集成测试，需要本机 QGIS
-python scripts/sync_engine.py --from D:\Develop\SharpGIS\Engine   # 同步引擎
+python scripts/sync_engine.py --from <engine-source-dir>   # 同步引擎
 python scripts/build_zip.py                                      # 打包
 ```
 
-引擎在 `qgis_camarkov/resources/engine/` 是 **vendored 副本**，不要在本地改它：
-改动提到 SharpGIS 上游，再用 `scripts/sync_engine.py` 同步过来。
+引擎文件位于 `qgis_camarkov/resources/engine/`，请通过
+`scripts/sync_engine.py` 统一同步，避免副本与源目录漂移。
 
 ## 故障排查
 
@@ -125,7 +125,7 @@ python scripts/build_zip.py                                      # 打包
 rmdir /S /Q "%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\qgis-camarkov-master"
 ```
 
-然后按上面「从 ZIP 安装」重装 `qgis_camarkov-0.1.0.zip`。
+然后按上面「从 ZIP 安装」重装 `qgis_camarkov-<版本>.zip`。
 
 **插件管理器里显示「已安装」但处理工具箱没有 CA-Markov**
 
@@ -148,4 +148,4 @@ rmdir /S /Q "%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\qgis-camarkov-
 ## 许可证
 
 本仓库整体为 GPL-2.0-or-later；`qgis_camarkov/resources/engine/` 下的两个引擎文件
-来自 SharpGIS，继续以 MIT 授权（见该目录的 LICENSE）。详见根目录 `LICENSE`。
+继续以 MIT 授权（见该目录的 LICENSE）。详见根目录 `LICENSE`。

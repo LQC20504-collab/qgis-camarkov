@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""SharpGIS CA-Markov 引擎的英文译文表。
+"""CA-Markov 引擎的英文译文表。
 
 键是引擎源码里的中文原文（必须逐字一致），值是对应的英文。
 camarkov_engine.py 用 L(text) 取值：命中则返回英文，未命中则原样返回中文。
@@ -100,8 +100,8 @@ EN = {
     "其他变化": "Other change",
 
     # ---------------- 报告 ----------------
-    "SharpGIS · 土地利用变化预测报告":
-        "SharpGIS · Land-use Change Prediction Report",
+    "土地利用变化预测报告":
+        "Land-use Change Prediction Report",
     "生成时间：": "Generated: ",
     "一、输入数据": "1. Input data",
     "  第 %d 期：%s（波段 %d）": "  Period %d: %s (band %d)",
@@ -240,7 +240,7 @@ EN = {
     "失败项：": "Failed items: ",
 
     # ---------------- 命令行 ----------------
-    "SharpGIS CA-Markov 引擎": "SharpGIS CA-Markov engine",
+    "CA-Markov 引擎": "CA-Markov engine",
     "参数 JSON 路径": "path to the parameter JSON",
     "运行纯函数自检": "run the pure-function self-test",
     "用法：camarkov_engine.py --job job.json 或 --selftest":
