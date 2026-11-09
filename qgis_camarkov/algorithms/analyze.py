@@ -16,6 +16,7 @@ class AnalyzeAlgorithm(CamarkovAlgorithmBase):
     GROUP_ID = "preview"
     # 引擎的 analyze 只产出 metrics.json 与转移矩阵图，不写文本报告
     SUPPORTS_REPORT = False
+    ICON_FILE = "icon_analyze.svg"
 
     def createInstance(self):  # noqa: N802  (QGIS 约定)
         """QGIS 每次执行都会要一个新实例，必须返回新对象而不是 self。"""

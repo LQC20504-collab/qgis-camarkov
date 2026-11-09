@@ -33,6 +33,11 @@ QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**�
   `icon()`（`qgsprocessingtoolboxmodel.cpp:511/516`），所以三个算法一直显示 QGIS
   自带的通用齿轮图标。现两处补齐，插件管理器 / 工具栏按钮 / 工具箱分组 /
   三个算法这四个位置共用同一张 `resources/icon.svg`，QGIS 3.40 实测四处均加载成功。
+- 新增三张算法专用小图标 `icon_analyze.svg` / `icon_train.svg` / `icon_predict.svg`，
+  沿用主图标配色，主形分别为方形矩阵 / 分叉节点 / 右向箭头，保证 16px 下靠剪影可辨。
+  `algorithms/base.py` 增加 `ICON_FILE` 类属性，三个算法类各自覆盖，
+  `icon()` / `svgIconPath()` 按它取值；分组、工具栏、插件管理器仍用主 `icon.svg`。
+  QGIS 3.40 实测四处图标均加载成功且指向 4 个不同文件。
 
 ## 0.1.1
 

@@ -16,6 +16,7 @@ class TrainAlgorithm(CamarkovAlgorithmBase):
     NEEDS_MODEL_OUTPUT = True
     # 引擎的 train 只产出模型与指标，不写文本报告
     SUPPORTS_REPORT = False
+    ICON_FILE = "icon_train.svg"
 
     def createInstance(self):  # noqa: N802  (QGIS 约定)
         """QGIS 每次执行都会要一个新实例，必须返回新对象而不是 self。"""

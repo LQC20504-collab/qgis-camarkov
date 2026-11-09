@@ -14,6 +14,7 @@ class PredictAlgorithm(CamarkovAlgorithmBase):
     GROUP = "变化预测"
     GROUP_ID = "predict"
     NEEDS_RASTER_OUTPUT = True
+    ICON_FILE = "icon_predict.svg"
 
     def createInstance(self):  # noqa: N802  (QGIS 约定)
         """QGIS 每次执行都会要一个新实例，必须返回新对象而不是 self。"""
