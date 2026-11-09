@@ -18,6 +18,9 @@ QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**�
   真实构造 `QgsProcessingParameterMultipleLayers` 全过；PyQt6 6.12 下 10 个 Qt 枚举全部可解析；
   本地 AST 等价检查 21 → 0（文件/行/列与官方清单完全一致）；pytest 47 passed / 5 skipped；
   bandit 0、detect-secrets 0。
+- `metadata.txt`：`author` 从 "SharpGIS contributors" 改为 GitHub 用户名
+  `LQC20504-collab`（`gh api user` 确认的登录名，与仓库 owner / 插件 Maintainer 一致）；
+  `about` 删去末尾中文行，简介全篇英文。引擎来源 "SharpGIS project" 属技术事实说明，保留。
 - `QgsProcessing.SourceType.TypeRaster` 只能在 QGIS 4 运行时最终确认，
   其 scope 名取自官方检查器输出；QGIS 3.40 上已实测与扁平写法等价。
 
