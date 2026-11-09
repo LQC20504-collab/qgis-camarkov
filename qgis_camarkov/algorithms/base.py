@@ -77,8 +77,18 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         """分组的稳定标识。"""
         return self.GROUP_ID
 
+    def icon(self):
+        """算法图标：与工具箱分组、工具栏按钮共用同一张。
+
+        处理工具箱的 DecorationRole 取的是 ``icon()`` 而非 ``svgIconPath()``，
+        只覆写后者不会改变工具箱里显示的图标。
+        """
+        from qgis.PyQt.QtGui import QIcon
+
+        return QIcon(self.svgIconPath())
+
     def svgIconPath(self):  # noqa: N802  (QGIS 约定)
-        """算法图标。"""
+        """算法图标的 SVG 路径，QGIS 在需要缩放的场合优先用它。"""
         return os.path.join(PLUGIN_DIR, "resources", "icon.svg")
 
     def shortHelpString(self):  # noqa: N802  (QGIS 约定)

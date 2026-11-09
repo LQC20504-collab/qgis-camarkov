@@ -27,6 +27,12 @@ QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**�
   `scripts/sync_engine.py` 及引擎副本中的品牌与来源文字，使插件完全独立；
   版权声明保留，权利人改为 `LQC20504-collab`。引擎副本的两个中文 i18n 键
   与 `lang_en.py` 译文表已同步更新。
+- 修复处理工具箱图标：`provider.py` 的 `PLUGIN_DIR` 多算了一层 `dirname`，
+  分组图标指向不存在的 `仓库根/resources/icon.svg`（实测 `QIcon.isNull=True`）；
+  `algorithms/base.py` 只覆写了 `svgIconPath()`，而工具箱的 DecorationRole 取的是
+  `icon()`（`qgsprocessingtoolboxmodel.cpp:511/516`），所以三个算法一直显示 QGIS
+  自带的通用齿轮图标。现两处补齐，插件管理器 / 工具栏按钮 / 工具箱分组 /
+  三个算法这四个位置共用同一张 `resources/icon.svg`，QGIS 3.40 实测四处均加载成功。
 
 ## 0.1.1
 

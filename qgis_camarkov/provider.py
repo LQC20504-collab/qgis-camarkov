@@ -12,7 +12,7 @@ from .algorithms.analyze import AnalyzeAlgorithm
 from .algorithms.predict import PredictAlgorithm
 from .algorithms.train import TrainAlgorithm
 
-PLUGIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class CamarkovProvider(QgsProcessingProvider):
