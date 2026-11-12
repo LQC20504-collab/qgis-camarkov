@@ -22,6 +22,7 @@ import sys
 import threading
 
 from . import protocol
+from ..i18n import T
 
 
 class EngineRunResult:
@@ -46,13 +47,13 @@ class EngineRunResult:
         引擎约定：1 = 参数或数据错误，2 = 运行时异常（含 ``KeyError`` 之类的裸栈）。
         """
         if self.cancelled:
-            return "操作已取消"
+            return T("操作已取消")
         if self.exit_code == 0:
             return ""
         if self.exit_code == 1:
-            head = "CA-Markov 参数或数据有误"
+            head = T("CA-Markov 参数或数据有误")
         else:
-            head = "CA-Markov 引擎运行失败（退出码 %s）" % self.exit_code
+            head = T("CA-Markov 引擎运行失败（退出码 %s）") % self.exit_code
         tail = self.stderr_tail.strip()
         return head if not tail else head + "\n\n" + tail
 
@@ -122,7 +123,7 @@ def run_engine(
         )
     except OSError as exc:
         result.exit_code = -1
-        result.stderr_tail = "无法启动 Python 进程：%s" % exc
+        result.stderr_tail = T("无法启动 Python 进程：%s") % exc
         return result
 
     lines = queue.Queue()
@@ -152,7 +153,7 @@ def run_engine(
         if timeout_seconds and (_now() - started) > timeout_seconds:
             _kill_tree(process)
             result.exit_code = -2
-            result.stderr_tail = "运行超过 %d 秒，已强制结束。" % timeout_seconds
+            result.stderr_tail = T("运行超过 %d 秒，已强制结束。") % timeout_seconds
             result.elapsed_seconds = _now() - started
             return result
         try:

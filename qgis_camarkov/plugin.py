@@ -15,6 +15,7 @@ import os
 from qgis.core import QgsApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtGui import QAction
+from .i18n import T, warm
 
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 MENU_NAME = "&CA-Markov"
@@ -39,6 +40,8 @@ class CamarkovPlugin:
         """注册 Processing Provider。这是无头模式下算法可见的唯一入口。"""
         if self.provider is not None:
             return
+        # 语言要先定下来：initAlgorithm 里的参数标签在这一刻就翻译好了
+        warm()
         from .provider import CamarkovProvider
 
         self.provider = CamarkovProvider()
@@ -52,8 +55,8 @@ class CamarkovPlugin:
             return
 
         icon = QIcon(os.path.join(PLUGIN_DIR, "resources", "icon.svg"))
-        self.action = QAction(icon, "CA-Markov 结果…", self.iface.mainWindow())
-        self.action.setToolTip("打开最近一次 CA-Markov 运行的结果面板")
+        self.action = QAction(icon, T("CA-Markov 结果…"), self.iface.mainWindow())
+        self.action.setToolTip(T("打开最近一次 CA-Markov 运行的结果面板"))
         self.action.triggered.connect(self.show_last_result)
         self.iface.addToolBarIcon(self.action)
         self.iface.addPluginToMenu(MENU_NAME, self.action)
@@ -85,8 +88,8 @@ class CamarkovPlugin:
             QMessageBox.information(
                 self.iface.mainWindow(),
                 "CA-Markov",
-                "还没有可显示的结果。\n\n请先在处理工具箱里运行 "
-                "「CA-Markov → 变化预测」或「转移分析」。",
+                T("还没有可显示的结果。\n\n请先在处理工具箱里运行 "
+                "「CA-Markov → 变化预测」或「转移分析」。"),
             )
             return
         self.open_result_dock(metrics_path)

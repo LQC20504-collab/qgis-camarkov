@@ -37,21 +37,43 @@ from qgis.core import (
 
 from ..core import job_schema, metrics as metrics_mod, runner
 from ..core.locator import find as find_python
+from ..i18n import T, current as ui_lang
 
 PLUGIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENGINE_DIR = os.path.join(PLUGIN_DIR, "resources", "engine")
 ENGINE_SCRIPT = os.path.join(ENGINE_DIR, "camarkov_engine.py")
 
-TRANSITION_LABELS = ["最近一个区间", "最近两期平均（推荐）", "全部区间累计"]
-SUITABILITY_LABELS = [
-    "随机森林转移潜力（推荐）",
-    "因子加权（MCE）",
-    "外部适宜性图集",
-    "不使用适宜性",
-]
-NORMALIZE_LABELS = ["分位数 2%–98%（推荐）", "最小-最大值"]
-BAND_MODE_LABELS = ["按顺序（波段 1 = 类别 0）", "按类别值（波段号 = 类别值）"]
-LANG_LABELS = ["跟随界面（中文）", "English"]
+def transition_labels():
+    """转移矩阵来源的下拉项。"""
+    return [T("最近一个区间"), T("最近两期平均（推荐）"), T("全部区间累计")]
+
+
+def suitability_labels():
+    """适宜性来源的下拉项。"""
+    return [
+        T("随机森林转移潜力（推荐）"),
+        T("因子加权（MCE）"),
+        T("外部适宜性图集"),
+        T("不使用适宜性"),
+    ]
+
+
+def normalize_labels():
+    """因子标准化方法的下拉项。"""
+    return [T("分位数 2%–98%（推荐）"), T("最小-最大值")]
+
+
+def band_mode_labels():
+    """波段号与类别对应方式的下拉项。"""
+    return [T("按顺序（波段 1 = 类别 0）"), T("按类别值（波段号 = 类别值）")]
+
+
+def lang_labels():
+    """报告语言的下拉项。
+
+    语言名按自身语言显示，所以 "English" 不翻译；"中文" 在英文界面下显示为 Chinese。
+    """
+    return [T("跟随界面"), "English", T("中文")]
 
 
 class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
@@ -70,12 +92,27 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
     # ------------------------------------------------------------------ 元信息
 
     def group(self):
-        """工具箱里的分组名。"""
-        return self.GROUP
+        """工具箱里的分组名。
+
+        ``GROUP`` 保持中文键不变，翻译放在这里——写成类属性 ``GROUP = T(...)``
+        会在模块导入时把语言冻结。
+        """
+        return T(self.GROUP)
 
     def groupId(self):  # noqa: N802  (QGIS 约定)
         """分组的稳定标识。"""
         return self.GROUP_ID
+
+    def _report_lang(self, index):
+        """把 ``LANG`` 的下拉索引转成引擎的 ``zh``/``en``。
+
+        0 = 跟随界面（默认），1 = English（与旧版编号兼容），2 = 中文。
+        """
+        if index == 1:
+            return "en"
+        if index == 2:
+            return "zh"
+        return ui_lang()
 
     #: 算法图标文件名；子类各自覆盖。分组、工具栏、插件管理器仍用 ``icon.svg``。
     ICON_FILE = "icon.svg"
@@ -97,11 +134,11 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
     def shortHelpString(self):  # noqa: N802  (QGIS 约定)
         """帮助页正文。"""
         return (
-            "调用内置的 CA-Markov 引擎完成土地利用变化分析与预测。\n\n"
+            T("调用内置的 CA-Markov 引擎完成土地利用变化分析与预测。\n\n"
             "引擎以子进程运行，使用独立的 Python 解释器，不占用 QGIS 进程。\n"
             "各期栅格必须**同网格、同坐标系**（程序会检查），不做自动重采样。\n\n"
             "转移矩阵来源建议先用「最近一个区间」跑一次转移分析看矩阵，"
-            "确认数据与无效值设置无误后再做预测。"
+            "确认数据与无效值设置无误后再做预测。")
         )
 
     # ------------------------------------------------------------------ 参数
@@ -111,14 +148,14 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterMultipleLayers(
                 "PERIODS",
-                "土地利用分期栅格（按时间从旧到新，至少两期）",
+                T("土地利用分期栅格（按时间从旧到新，至少两期）"),
                 QgsProcessing.SourceType.TypeRaster,
             )
         )
         self.addParameter(
             QgsProcessingParameterNumber(
                 "PERIOD_BAND",
-                "各期使用的波段号",
+                T("各期使用的波段号"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 1,
                 minValue=1,
@@ -127,7 +164,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 "NODATA",
-                "无效值（0~65535；>255 时输出为 uint16 且不含类别色彩表）",
+                T("无效值（0~65535；>255 时输出为 uint16 且不含类别色彩表）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 0,
                 minValue=0,
@@ -137,7 +174,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 "CLASS_COUNT",
-                "类别数（0 = 按数据自动推断）",
+                T("类别数（0 = 按数据自动推断）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 0,
                 minValue=0,
@@ -147,16 +184,16 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterEnum(
                 "TRANSITION_SOURCE",
-                "转移矩阵来源",
-                TRANSITION_LABELS,
+                T("转移矩阵来源"),
+                transition_labels(),
                 defaultValue=1,
             )
         )
         self.addParameter(
             QgsProcessingParameterEnum(
                 "SUITABILITY_MODE",
-                "适宜性来源",
-                SUITABILITY_LABELS,
+                T("适宜性来源"),
+                suitability_labels(),
                 defaultValue=3,
             )
         )
@@ -171,7 +208,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterMultipleLayers(
                 "TRAIN_DRIVERS",
-                "训练驱动因子栅格（顺序即特征顺序；随机森林模式必需）",
+                T("训练驱动因子栅格（顺序即特征顺序；随机森林模式必需）"),
                 QgsProcessing.SourceType.TypeRaster,
                 optional=True,
             )
@@ -179,21 +216,21 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFile(
                 "RF_MODEL",
-                "复用已训练的模型（.npz，可留空表示当场训练）",
+                T("复用已训练的模型（.npz，可留空表示当场训练）"),
                 extension="npz",
                 optional=True,
             )
         )
         self.addParameter(
             QgsProcessingParameterBoolean(
-                "RF_FORCE_TRAIN", "即使给了模型也强制重训", defaultValue=False
+                "RF_FORCE_TRAIN", T("即使给了模型也强制重训"), defaultValue=False
             )
         )
 
         advanced = [
             QgsProcessingParameterNumber(
                 "TRAIN_TREES",
-                "树的数量",
+                T("树的数量"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 200,
                 minValue=1,
@@ -201,7 +238,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             ),
             QgsProcessingParameterNumber(
                 "TRAIN_DEPTH",
-                "最大深度（0 = 不限制）",
+                T("最大深度（0 = 不限制）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 20,
                 minValue=0,
@@ -209,7 +246,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             ),
             QgsProcessingParameterNumber(
                 "TRAIN_IMBALANCE",
-                "不变像元采样倍数（变化像元的几倍）",
+                T("不变像元采样倍数（变化像元的几倍）"),
                 Qgis.ProcessingNumberParameterType.Double,
                 2.0,
                 minValue=0.1,
@@ -217,7 +254,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             ),
             QgsProcessingParameterNumber(
                 "TRAIN_SEED",
-                "随机种子（保证可复现）",
+                T("随机种子（保证可复现）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 42,
                 minValue=0,
@@ -232,26 +269,26 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         """因子加权与外置适宜性图集的参数。"""
         factors = QgsProcessingParameterMatrix(
             "FACTORS",
-            "加权因子（随机森林模式忽略；每行：路径 / 波段 / 权重 / 方向）",
+            T("加权因子（随机森林模式忽略；每行：路径 / 波段 / 权重 / 方向）"),
             numberRows=0,
             hasFixedNumberRows=False,
-            headers=["路径", "波段", "权重", "方向(1正向/-1负向)"],
+            headers=[T("路径"), T("波段"), T("权重"), T("方向(1正向/-1负向)")],
             optional=True,
         )
         self.addParameter(factors)
 
         external = QgsProcessingParameterRasterLayer(
-            "EXTERNAL_SUITABILITY", "外部适宜性图集（多波段，仅外部模式用）", optional=True
+            "EXTERNAL_SUITABILITY", T("外部适宜性图集（多波段，仅外部模式用）"), optional=True
         )
         self.addParameter(external)
         self.addParameter(
             QgsProcessingParameterEnum(
-                "EXTERNAL_BAND_MODE", "图集波段与类别的对应关系", BAND_MODE_LABELS, defaultValue=0
+                "EXTERNAL_BAND_MODE", T("图集波段与类别的对应关系"), band_mode_labels(), defaultValue=0
             )
         )
         self.addParameter(
             QgsProcessingParameterRasterLayer(
-                "CONSTRAINT", "限制性条件图（>0.5 可转变，0 禁止；可选）", optional=True
+                "CONSTRAINT", T("限制性条件图（>0.5 可转变，0 禁止；可选）"), optional=True
             )
         )
 
@@ -260,7 +297,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 "STEPS",
-                "预测步数（每步用同一转移矩阵重新分配）",
+                T("预测步数（每步用同一转移矩阵重新分配）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 1,
                 minValue=1,
@@ -270,21 +307,21 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         advanced = [
             QgsProcessingParameterNumber(
                 "NEIGHBORHOOD_SIZE",
-                "邻域窗口（3/5/7，奇数）",
+                T("邻域窗口（3/5/7，奇数）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 5,
                 minValue=3,
                 maxValue=99,
             ),
             QgsProcessingParameterBoolean(
-                "RECOMPUTE_NEIGHBORHOOD", "每一步都重算邻域", defaultValue=True
+                "RECOMPUTE_NEIGHBORHOOD", T("每一步都重算邻域"), defaultValue=True
             ),
             QgsProcessingParameterEnum(
-                "NORMALIZE_METHOD", "因子标准化方法", NORMALIZE_LABELS, defaultValue=0
+                "NORMALIZE_METHOD", T("因子标准化方法"), normalize_labels(), defaultValue=0
             ),
             QgsProcessingParameterNumber(
                 "WEIGHT_SUITABILITY",
-                "适宜性权重",
+                T("适宜性权重"),
                 Qgis.ProcessingNumberParameterType.Double,
                 0.6,
                 minValue=0.0,
@@ -292,25 +329,25 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             ),
             QgsProcessingParameterNumber(
                 "WEIGHT_NEIGHBORHOOD",
-                "邻域权重",
+                T("邻域权重"),
                 Qgis.ProcessingNumberParameterType.Double,
                 0.4,
                 minValue=0.0,
                 maxValue=1.0,
             ),
             QgsProcessingParameterBoolean(
-                "MODULATE_BY_PROBABILITY", "用转移概率调制适宜性（区分目标类）", defaultValue=True
+                "MODULATE_BY_PROBABILITY", T("用转移概率调制适宜性（区分目标类）"), defaultValue=True
             ),
-            QgsProcessingParameterBoolean("VALIDATION_ENABLED", "输出精度评价", defaultValue=True),
+            QgsProcessingParameterBoolean("VALIDATION_ENABLED", T("输出精度评价"), defaultValue=True),
             QgsProcessingParameterBoolean(
                 "VALIDATION_SAME_PERIOD",
-                "改用同期自检（in-sample，指标偏乐观）",
+                T("改用同期自检（in-sample，指标偏乐观）"),
                 defaultValue=False,
             ),
-            QgsProcessingParameterEnum("LANG", "报告与图表语言", LANG_LABELS, defaultValue=0),
+            QgsProcessingParameterEnum("LANG", T("报告与图表语言"), lang_labels(), defaultValue=0),
             QgsProcessingParameterNumber(
                 "CHUNK",
-                "推理分块大小（像元）",
+                T("推理分块大小（像元）"),
                 Qgis.ProcessingNumberParameterType.Integer,
                 200000,
                 minValue=10000,
@@ -325,10 +362,10 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         # 默认按类别数自动生成，需要时可在「高级」里覆盖。
         names = QgsProcessingParameterMatrix(
             "CLASS_NAMES",
-            "类别名称（可选；每行一个：序号 / 名称）",
+            T("类别名称（可选；每行一个：序号 / 名称）"),
             numberRows=0,
             hasFixedNumberRows=False,
-            headers=["序号", "名称"],
+            headers=[T("序号"), T("名称")],
             optional=True,
         )
         names.setFlags(names.flags() | Qgis.ProcessingParameterFlag.Advanced)
@@ -338,30 +375,30 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         """输出。metrics 是必需项：没有它引擎算完也不落盘。"""
         self.addParameter(
             QgsProcessingParameterFileDestination(
-                "OUTPUT_METRICS", "指标 JSON（必需）", "JSON 文件 (*.json)"
+                "OUTPUT_METRICS", T("指标 JSON（必需）"), T("JSON 文件 (*.json)")
             )
         )
         if self.SUPPORTS_REPORT:
             self.addParameter(
                 QgsProcessingParameterFileDestination(
-                    "OUTPUT_REPORT", "文本报告（可选）", "文本文件 (*.txt)", optional=True
+                    "OUTPUT_REPORT", T("文本报告（可选）"), T("文本文件 (*.txt)"), optional=True
                 )
             )
         self.addParameter(
             QgsProcessingParameterFolderDestination(
-                "OUTPUT_FIG_DIR", "图表目录（可选；留空则不出图）", optional=True
+                "OUTPUT_FIG_DIR", T("图表目录（可选；留空则不出图）"), optional=True
             )
         )
         if self.NEEDS_RASTER_OUTPUT:
             self.addParameter(
                 QgsProcessingParameterRasterDestination(
-                    "OUTPUT_RASTER", "预测栅格（仅支持 .tif/.tiff）"
+                    "OUTPUT_RASTER", T("预测栅格（仅支持 .tif/.tiff）")
                 )
             )
         if self.NEEDS_MODEL_OUTPUT:
             self.addParameter(
                 QgsProcessingParameterFileDestination(
-                    "OUTPUT_MODEL", "模型文件（.npz）", "NumPy 模型 (*.npz)"
+                    "OUTPUT_MODEL", T("模型文件（.npz）"), T("NumPy 模型 (*.npz)")
                 )
             )
 
@@ -371,16 +408,16 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         """在开跑前把能查的都查掉，避免浪费几分钟才报错。"""
         layers = self.parameterAsLayerList(parameters, "PERIODS", context)
         if len(layers) < 2:
-            return False, "至少需要两期土地利用栅格（当前 %d 期）。" % len(layers)
+            return False, T("至少需要两期土地利用栅格（当前 %d 期）。") % len(layers)
 
         for index, layer in enumerate(layers):
             if layer is None:
-                return False, "第 %d 期图层无效。" % (index + 1)
+                return False, T("第 %d 期图层无效。") % (index + 1)
             source = layer.source() or ""
             path = source.split("|")[0]
             if not os.path.isfile(path):
                 return False, (
-                    "第 %d 期不是本地栅格文件，引擎无法读取：%s" % (index + 1, source)
+                    T("第 %d 期不是本地栅格文件，引擎无法读取：%s") % (index + 1, source)
                 )
 
         grid_error = self._check_grid(layers)
@@ -389,7 +426,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
 
         nodata = self.parameterAsInt(parameters, "NODATA", context)
         if nodata < 0 or nodata > 65535:
-            return False, "无效值必须是 0~65535 的整数。"
+            return False, T("无效值必须是 0~65535 的整数。")
 
         mode = self._suitability_mode(parameters, context)
         if mode == "rf":
@@ -397,29 +434,29 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             model = self.parameterAsFile(parameters, "RF_MODEL", context)
             if not drivers and not model:
                 return False, (
-                    "随机森林模式需要提供训练驱动因子，或指定一个已训练的模型文件。\n"
-                    "如果只想快速看转移矩阵，请把「适宜性来源」改成「不使用适宜性」。"
+                    T("随机森林模式需要提供训练驱动因子，或指定一个已训练的模型文件。\n"
+                    "如果只想快速看转移矩阵，请把「适宜性来源」改成「不使用适宜性」。")
                 )
         elif mode == "factor":
             values = self.parameterAsMatrix(parameters, "FACTORS", context)
             if not job_schema.parse_factor_matrix(values):
-                return False, "因子加权模式至少需要一行有效因子（路径不能为空）。"
+                return False, T("因子加权模式至少需要一行有效因子（路径不能为空）。")
         elif mode == "external":
             atlas = self.parameterAsRasterLayer(parameters, "EXTERNAL_SUITABILITY", context)
             if atlas is None:
-                return False, "外部适宜性图集模式需要指定一个多波段栅格。"
+                return False, T("外部适宜性图集模式需要指定一个多波段栅格。")
 
         weights = self.parameterAsDouble(parameters, "WEIGHT_SUITABILITY", context)
         weights += self.parameterAsDouble(parameters, "WEIGHT_NEIGHBORHOOD", context)
         if weights <= 1e-9:
-            return False, "适宜性权重与邻域权重不能同时为 0。"
+            return False, T("适宜性权重与邻域权重不能同时为 0。")
 
         if self.NEEDS_RASTER_OUTPUT:
             raster = self.parameterAsOutputLayer(parameters, "OUTPUT_RASTER", context)
             if raster and os.path.splitext(raster)[1].lower() not in (".tif", ".tiff"):
                 return False, (
-                    "预测栅格只支持 .tif/.tiff。\n"
-                    "引擎固定写出 GeoTIFF，其它扩展名会得到名实不符的文件。"
+                    T("预测栅格只支持 .tif/.tiff。\n"
+                    "引擎固定写出 GeoTIFF，其它扩展名会得到名实不符的文件。")
                 )
         return True, ""
 
@@ -433,7 +470,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         base = layers[0]
         for index, layer in enumerate(layers[1:], start=2):
             if layer.width() != base.width() or layer.height() != base.height():
-                return "第 %d 期尺寸不一致：%d×%d ≠ %d×%d。" % (
+                return T("第 %d 期尺寸不一致：%d×%d ≠ %d×%d。") % (
                     index,
                     layer.width(),
                     layer.height(),
@@ -442,13 +479,13 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
                 )
             if not layer.crs() == base.crs():
                 return (
-                    "第 %d 期坐标系与第 1 期不一致。\n"
-                    "引擎不会自动重投影，请先统一坐标系再运行。" % index
+                    T("第 %d 期坐标系与第 1 期不一致。\n"
+                    "引擎不会自动重投影，请先统一坐标系再运行。") % index
                 )
             if not self._extent_close(layer.extent(), base.extent(), base):
                 return (
-                    "第 %d 期的范围与第 1 期不一致（同一网格应完全重合）。\n"
-                    "请先对齐网格再运行。" % index
+                    T("第 %d 期的范围与第 1 期不一致（同一网格应完全重合）。\n"
+                    "请先对齐网格再运行。") % index
                 )
         return ""
 
@@ -469,7 +506,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
     def processAlgorithm(self, parameters, context, feedback):  # noqa: N802  (QGIS 约定)
         """组装 job、跑引擎、读回 metrics。"""
         feedback.setProgress(0)
-        feedback.pushInfo("准备 CA-Markov 运行环境…")
+        feedback.pushInfo(T("准备 CA-Markov 运行环境…"))
 
         python_env = find_python(
             qgis_prefix=self._qgis_prefix(),
@@ -477,14 +514,14 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         )
         if not python_env.usable:
             raise QgsProcessingException(
-                "找不到可用的 Python 解释器，或缺少依赖：\n\n%s\n\n"
-                "可以在「设置 → 选项 → 处理」之外手动指定；也可以直接执行上面的 pip 命令安装。"
+                T("找不到可用的 Python 解释器，或缺少依赖：\n\n%s\n\n"
+                "可以在「设置 → 选项 → 处理」之外手动指定；也可以直接执行上面的 pip 命令安装。")
                 % python_env.describe()
             )
-        feedback.pushInfo("解释器：%s" % python_env.describe())
+        feedback.pushInfo(T("解释器：%s") % python_env.describe())
 
         if not os.path.isfile(ENGINE_SCRIPT):
-            raise QgsProcessingException("找不到引擎脚本：%s" % ENGINE_SCRIPT)
+            raise QgsProcessingException(T("找不到引擎脚本：%s") % ENGINE_SCRIPT)
 
         job = self._build_job(parameters, context)
         work_dir = tempfile.mkdtemp(prefix="camarkov_")
@@ -506,12 +543,12 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         try:
             metrics_path = job.get("outputs", {}).get("metrics")
             if result.cancelled:
-                raise QgsProcessingException("已取消。")
+                raise QgsProcessingException(T("已取消。"))
             if not result.ok:
                 raise QgsProcessingException(result.error_message())
             if not metrics_path or not os.path.isfile(metrics_path):
                 raise QgsProcessingException(
-                    "引擎没有生成指标文件，可能被提前中断：\n%s" % metrics_path
+                    T("引擎没有生成指标文件，可能被提前中断：\n%s") % metrics_path
                 )
             data = metrics_mod.load(metrics_path)
         finally:
@@ -600,7 +637,7 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
             ),
             outputs=outputs,
             chunk=self.parameterAsInt(parameters, "CHUNK", context),
-            lang="en" if self.parameterAsEnum(parameters, "LANG", context) == 1 else "zh",
+            lang=self._report_lang(self.parameterAsEnum(parameters, "LANG", context)),
             rf_model=model_path,
             rf_force_train=self.parameterAsBool(parameters, "RF_FORCE_TRAIN", context),
             train_drivers=drivers,
@@ -642,8 +679,8 @@ class CamarkovAlgorithmBase(QgsProcessingAlgorithm):
         path = getattr(self, "_last_metrics_path", "")
         if path and os.path.isfile(path):
             QgsSettings().setValue("camarkov/last_metrics", path)
-            feedback.pushInfo("CA-Markov 完成：%s" % getattr(self, "_last_summary", ""))
-            feedback.pushInfo("指标文件：%s" % path)
+            feedback.pushInfo(T("CA-Markov 完成：%s") % getattr(self, "_last_summary", ""))
+            feedback.pushInfo(T("指标文件：%s") % path)
             for warning in getattr(self, "_last_warnings", []):
                 feedback.pushWarning(warning)
         return {}

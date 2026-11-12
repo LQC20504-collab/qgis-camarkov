@@ -25,6 +25,8 @@
 本模块**不依赖 QGIS**，可以脱离 QGIS 单测。
 """
 
+from ..i18n import T
+
 TRANSITION_SOURCES = ("last_interval", "last_two_average", "all_periods")
 SUITABILITY_MODES = ("rf", "factor", "external", "none")
 NORMALIZE_METHODS = ("minmax", "quantile")
@@ -178,23 +180,23 @@ def build_job(
     :raises ValueError: 参数组合非法（例如时期少于两期、模式未知）。
     """
     if mode not in ("analyze", "train", "predict"):
-        raise ValueError("未知模式：%s" % mode)
+        raise ValueError(T("未知模式：%s") % mode)
     if transition_source not in TRANSITION_SOURCES:
-        raise ValueError("未知的转移矩阵来源：%s" % transition_source)
+        raise ValueError(T("未知的转移矩阵来源：%s") % transition_source)
     if suitability_mode not in SUITABILITY_MODES:
-        raise ValueError("未知的适宜性模式：%s" % suitability_mode)
+        raise ValueError(T("未知的适宜性模式：%s") % suitability_mode)
     if normalize_method not in NORMALIZE_METHODS:
-        raise ValueError("未知的标准化方法：%s" % normalize_method)
+        raise ValueError(T("未知的标准化方法：%s") % normalize_method)
 
     period_list = []
     for index, period in enumerate(periods or []):
         path = (period or {}).get("path")
         if not path:
             # 宁可在这里报错，也不要让引擎抛 KeyError 变成退出码 2
-            raise ValueError("第 %d 期缺少文件路径" % (index + 1))
+            raise ValueError(T("第 %d 期缺少文件路径") % (index + 1))
         period_list.append({"path": str(path), "band": _as_int(period.get("band"), 1)})
     if len(period_list) < 2:
-        raise ValueError("至少需要两期土地利用数据")
+        raise ValueError(T("至少需要两期土地利用数据"))
 
     count = _as_int(class_count, 0)
     names = list(class_names) if class_names else default_class_names(count, _as_int(nodata, 0))

@@ -21,6 +21,7 @@
 import os
 import subprocess  # nosec B404
 import sys
+from ..i18n import T
 
 #: 引擎 import 的第三方包（顺序与错误提示保持一致）。
 REQUIRED_PACKAGES = ("numpy", "scipy", "sklearn", "rasterio", "matplotlib")
@@ -54,9 +55,9 @@ class PythonEnvironment:
         if self.error:
             return self.error
         if not self.exe_path:
-            return "未找到可用的 Python 解释器"
+            return T("未找到可用的 Python 解释器")
         if self.missing:
-            return "Python %s 缺少依赖：%s\n可在命令行执行：\n%s" % (
+            return T("Python %s 缺少依赖：%s\n可在命令行执行：\n%s") % (
                 self.version,
                 "、".join(self.missing),
                 self.install_hint,
@@ -143,7 +144,7 @@ def probe(exe_path):
     """
     env = PythonEnvironment(exe_path)
     if not os.path.isfile(exe_path):
-        env.error = "解释器不存在：%s" % exe_path
+        env.error = T("解释器不存在：%s") % exe_path
         return env
 
     code = (
@@ -166,10 +167,10 @@ def probe(exe_path):
             creationflags=_no_window_flag(),
         )
     except subprocess.TimeoutExpired:
-        env.error = "解释器探测超时：%s" % exe_path
+        env.error = T("解释器探测超时：%s") % exe_path
         return env
     except OSError as exc:
-        env.error = "无法启动解释器：%s\n%s" % (exe_path, exc)
+        env.error = T("无法启动解释器：%s\n%s") % (exe_path, exc)
         return env
 
     for line in completed.stdout.splitlines():
@@ -182,7 +183,7 @@ def probe(exe_path):
 
     if not env.version:
         tail = (completed.stderr or "").strip()[-300:]
-        env.error = "无法启动解释器：%s\n%s" % (exe_path, tail)
+        env.error = T("无法启动解释器：%s\n%s") % (exe_path, tail)
     return env
 
 

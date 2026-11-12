@@ -23,6 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install numpy scipy pytest
 
+      - name: Check i18n coverage
+        run: python scripts/check_i18n.py
+
       - name: Run pure-Python tests
         run: python -m pytest -m "not qgis" -v
 

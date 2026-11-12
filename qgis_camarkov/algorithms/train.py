@@ -5,6 +5,7 @@
 """
 
 from .base import CamarkovAlgorithmBase
+from ..i18n import T
 
 
 class TrainAlgorithm(CamarkovAlgorithmBase):
@@ -28,14 +29,14 @@ class TrainAlgorithm(CamarkovAlgorithmBase):
 
     def displayName(self):  # noqa: N802  (QGIS 约定)
         """工具箱里显示的名字。"""
-        return "训练转移潜力模型（随机森林）"
+        return T("训练转移潜力模型（随机森林）")
 
     def shortHelpString(self):  # noqa: N802  (QGIS 约定)
         """帮助页正文。"""
         return (
-            "用各期的驱动因子（高程、坡度、距道路距离、人口等）训练随机森林，"
+            T("用各期的驱动因子（高程、坡度、距道路距离、人口等）训练随机森林，"
             "学习「哪里更容易发生转移」，输出可复用的模型文件（.npz）。\n\n"
             "训练样本来自相邻两期的变化像元：变化像元全保留，不变像元按"
             "「不变像元采样倍数」抽样，避免类别极度不平衡。\n\n"
-            "训练完成后，预测算法里指定这个模型即可跳过训练，节省几分钟。"
+            "训练完成后，预测算法里指定这个模型即可跳过训练，节省几分钟。")
         )

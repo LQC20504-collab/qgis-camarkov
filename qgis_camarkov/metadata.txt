@@ -1,5 +1,5 @@
 [general]
-name=CA-Markov 土地利用变化预测
+name=CA-Markov Land Change Prediction
 description=CA-Markov land-use change analysis, model training and scenario prediction based on random-forest transition potentials.
 about=CA-Markov land change modelling exposed as three Processing algorithms: transfer
  analysis (fast transition-matrix preview), model training (random-forest transition
@@ -10,7 +10,7 @@ about=CA-Markov land change modelling exposed as three Processing algorithms: tr
  (validated on 3.40.15 LTR). All input rasters must share the same grid and CRS.
  Outputs: a prediction GeoTIFF, a report, figures and a metrics JSON, shown in a
  dockable five-tab result panel.
-version=0.1.2
+version=0.1.3
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 author=LQC20504-collab
@@ -24,4 +24,4 @@ tracker=https://github.com/LQC20504-collab/qgis-camarkov/issues
 hasProcessingProvider=True
 experimental=False
 deprecated=False
-changelog=0.1.2 - QGIS 4 / Qt 6 compatibility (all 21 Qt6 Check enums scoped, QAction moved to QtGui, deprecated temporary Qt6 flag removed, qgisMaximumVersion set to 4.99), author set to LQC20504-collab and About text fully in English. No functional changes.
+changelog=0.1.3 - The whole interface now follows the QGIS UI language (Chinese or English), the plugin name is English, the report language option gained a follow-UI default, and the algorithm panel shows the real plugin version. No algorithmic changes.

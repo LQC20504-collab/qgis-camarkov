@@ -28,6 +28,7 @@ from qgis.PyQt.QtWidgets import (
 from qgis.gui import QgsDockWidget
 
 from ..core import metrics as metrics_mod
+from ..i18n import T, translate_class_name
 
 
 class _ScaledImage(QWidget):
@@ -56,7 +57,7 @@ class _ScaledImage(QWidget):
         layout.addWidget(self._label)
 
         if self._pixmap.isNull():
-            self._label.setText("（未生成这张图）")
+            self._label.setText(T("（未生成这张图）"))
         else:
             self._rescale()
 
@@ -84,7 +85,7 @@ class CamarkovResultDock(QgsDockWidget):
         :param metrics_path: 引擎写出的 metrics.json 路径。
         :param parent: 父窗口，默认取 ``iface.mainWindow()``。
         """
-        super().__init__("CA-Markov 结果", parent or (iface.mainWindow() if iface else None))
+        super().__init__(T("CA-Markov 结果"), parent or (iface.mainWindow() if iface else None))
         # objectName 必须有，QGIS 靠它持久化 dock 布局
         self.setObjectName("CamarkovResultDock")
 
@@ -108,18 +109,18 @@ class CamarkovResultDock(QgsDockWidget):
         layout.setContentsMargins(6, 6, 6, 6)
 
         if self.data is None:
-            label = QLabel("读取结果失败：\n\n%s\n\n文件：%s" % (self.error, self.metrics_path))
+            label = QLabel(T("读取结果失败：\n\n%s\n\n文件：%s") % (self.error, self.metrics_path))
             label.setWordWrap(True)
             layout.addWidget(label)
             self.setWidget(container)
             return
 
         tabs = QTabWidget(container)
-        tabs.addTab(self._tab_overview(), "概览")
-        tabs.addTab(self._tab_matrix(), "转移矩阵")
-        tabs.addTab(self._tab_accuracy(), "精度")
-        tabs.addTab(self._tab_importance(), "特征重要性")
-        tabs.addTab(self._tab_figures(), "图集")
+        tabs.addTab(self._tab_overview(), T("概览"))
+        tabs.addTab(self._tab_matrix(), T("转移矩阵"))
+        tabs.addTab(self._tab_accuracy(), T("精度"))
+        tabs.addTab(self._tab_importance(), T("特征重要性"))
+        tabs.addTab(self._tab_figures(), T("图集"))
         layout.addWidget(tabs)
 
         self.setWidget(container)
@@ -134,7 +135,7 @@ class CamarkovResultDock(QgsDockWidget):
         """拼概览页的 HTML。颜色全部走调色板，避免暗色主题下看不清。"""
         data = self.data
         accuracy = data.get("accuracy")
-        unit = "km²" if data.get("pixel_area_km2") else "像元"
+        unit = "km²" if data.get("pixel_area_km2") else T("像元")
 
         rows = []
         for row in data.get("classes") or []:
@@ -143,7 +144,7 @@ class CamarkovResultDock(QgsDockWidget):
                 "<td align='right'>%.4f</td><td align='right'>%.4f</td>"
                 "<td align='right'>%+.2f%%</td></tr>"
                 % (
-                    row.get("name", ""),
+                    translate_class_name(row.get("name", "")),
                     row.get("base") or 0,
                     row.get("end") or 0,
                     row.get("pred") or 0,
@@ -154,19 +155,22 @@ class CamarkovResultDock(QgsDockWidget):
         warnings = data.get("warnings") or []
         warning_html = ""
         if warnings:
-            warning_html = "<p><b>警告（%d）</b></p><ul>%s</ul>" % (
+            warning_html = T("<p><b>警告（%d）</b></p><ul>%s</ul>") % (
                 len(warnings),
                 "".join("<li>%s</li>" % w for w in warnings),
             )
 
         if accuracy:
-            accuracy_line = "总体精度 OA = %.4f，Kappa = %.4f" % (
+            accuracy_line = T("总体精度 OA = %.4f，Kappa = %.4f") % (
                 accuracy.get("oa", 0),
                 accuracy.get("kappa", 0),
             )
         else:
-            accuracy_line = "本次没有做精度评价"
+            accuracy_line = T("本次没有做精度评价")
 
+        headers = "".join(
+            "<th>%s</th>" % T(label) for label in ("类别", "基期", "末期", "预测", "变化率")
+        )
         return """
         <style>
           body {{ color: palette(text); }}
@@ -177,9 +181,9 @@ class CamarkovResultDock(QgsDockWidget):
         <p><b>{summary}</b></p>
         <p>{scheme}</p>
         <p>{accuracy}</p>
-        <p><b>面积统计（{unit}）</b></p>
+        <p><b>{area_title}</b></p>
         <table>
-          <tr><th>类别</th><th>基期</th><th>末期</th><th>预测</th><th>变化率</th></tr>
+          <tr>{headers}</tr>
           {rows}
         </table>
         {warnings}
@@ -187,7 +191,8 @@ class CamarkovResultDock(QgsDockWidget):
             summary=metrics_mod.summary(data),
             scheme=data.get("validation_note") or "",
             accuracy=accuracy_line,
-            unit=unit,
+            area_title=T("面积统计（%s）") % unit,
+            headers=headers,
             rows="".join(rows),
             warnings=warning_html,
         )
@@ -199,7 +204,7 @@ class CamarkovResultDock(QgsDockWidget):
         layout.setContentsMargins(2, 2, 2, 2)
 
         chooser = QComboBox()
-        chooser.addItems(["转移计数", "转移概率", "转移预算"])
+        chooser.addItems([T("转移计数"), T("转移概率"), T("转移预算")])
         layout.addWidget(chooser)
 
         table = QTableWidget()
@@ -216,7 +221,7 @@ class CamarkovResultDock(QgsDockWidget):
 
     def _fill_matrix(self, table, matrix, as_probability):
         """把二维矩阵填进表格，首行首列为类别名。"""
-        names = metrics_mod.class_names(self.data)
+        names = [translate_class_name(n) for n in metrics_mod.class_names(self.data)]
         size = len(names)
         table.clear()
         table.setRowCount(size)
@@ -241,7 +246,7 @@ class CamarkovResultDock(QgsDockWidget):
         """精度页：OA/Kappa + 各类 PA/UA/F1 + 混淆矩阵。"""
         accuracy = self.data.get("accuracy")
         if not accuracy:
-            label = QLabel("本次运行没有做精度评价。\n\n%s"
+            label = QLabel(T("本次运行没有做精度评价。\n\n%s")
                            % (self.data.get("validation_note") or ""))
             label.setWordWrap(True)
             return label
@@ -251,7 +256,7 @@ class CamarkovResultDock(QgsDockWidget):
         layout.setContentsMargins(2, 2, 2, 2)
 
         headline = QLabel(
-            "总体精度 OA = %.4f　　Kappa = %.4f　　有效像元 = %d"
+            T("总体精度 OA = %.4f　　Kappa = %.4f　　有效像元 = %d")
             % (accuracy.get("oa", 0), accuracy.get("kappa", 0), accuracy.get("total", 0))
         )
         headline.setStyleSheet("font-weight: bold;")
@@ -261,9 +266,9 @@ class CamarkovResultDock(QgsDockWidget):
         note.setWordWrap(True)
         layout.addWidget(note)
 
-        names = metrics_mod.class_names(self.data)
+        names = [translate_class_name(n) for n in metrics_mod.class_names(self.data)]
         by_class = QTableWidget(len(names), 4)
-        by_class.setHorizontalHeaderLabels(["类别", "PA", "UA", "F1"])
+        by_class.setHorizontalHeaderLabels([T("类别"), "PA", "UA", "F1"])
         by_class.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         for i, name in enumerate(names):
             values = [name]
@@ -286,12 +291,12 @@ class CamarkovResultDock(QgsDockWidget):
         """特征重要性页：按降序排表。"""
         items = self.data.get("feature_importance") or []
         if not items:
-            label = QLabel("本次没有训练随机森林（或复用了外部模型），因此没有特征重要性。")
+            label = QLabel(T("本次没有训练随机森林（或复用了外部模型），因此没有特征重要性。"))
             label.setWordWrap(True)
             return label
 
         table = QTableWidget(len(items), 2)
-        table.setHorizontalHeaderLabels(["驱动因子", "重要性"])
+        table.setHorizontalHeaderLabels([T("驱动因子"), T("重要性")])
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         for i, item in enumerate(items):
             name = QTableWidgetItem(str(item.get("name", "")))
@@ -306,7 +311,9 @@ class CamarkovResultDock(QgsDockWidget):
         """图集页：所有生成的 PNG 竖排，按宽度自适应缩放。"""
         figures = metrics_mod.figure_paths(self.data)
         if not figures:
-            label = QLabel("本次没有生成图表。\n\n提示：把「图表目录」留空会导致引擎一张图都不出。")
+            label = QLabel(
+            T("本次没有生成图表。\n\n提示：把「图表目录」留空会导致引擎一张图都不出。")
+        )
             label.setWordWrap(True)
             return label
 
@@ -332,5 +339,5 @@ def accuracy_note(data):
     note = data.get("validation_note") or ""
     baseline = data.get("baseline_oa")
     if baseline is not None:
-        note += "　　未变化基线 OA = %.4f（预测改动越少，越接近这个值）" % baseline
+        note += T("　　未变化基线 OA = %.4f（预测改动越少，越接近这个值）") % baseline
     return note

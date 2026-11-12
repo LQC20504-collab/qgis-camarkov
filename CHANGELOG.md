@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.1.3
+
+插件界面跟随 QGIS 语言（中文 / 英文），**无算法改动**。
+
+- 新增 `qgis_camarkov/i18n.py` + `i18n_en.py`：中文即键、未命中回退中文，与引擎的
+  `lang_en.py` 同构。界面语言按 `QgsApplication.translation()` →
+  `QgsApplication.locale()` → `locale/userLocale` → 系统 locale 依次推断，
+  可用 `CAMARKOV_LANG` 强制覆盖（测试与 CI 用）。
+- 覆盖约 160 条文案：工具箱参数标签、算法名、分组名、帮助正文、校验与运行错误、
+  结果面板页签 / 表头 / 提示、菜单与工具栏按钮、消息框。
+- 三处防冻结处理：`TRANSITION_LABELS` 等五个模块常量改为函数；`GROUP` 保留中文键，
+  翻译放进 `group()`；`FIGURE_TITLES` 保留中文值，在 `figure_paths()` 里翻译。
+  写成 `LABELS = [T(...)]` 会在导入时把语言固化，这是刻意避开的。
+- 数据与界面分离：`metrics.json` 的类别名始终写中文，只在结果面板显示时翻译，
+  保证同一输入在不同界面语言下产出完全一致。
+- `LANG` 参数改为三态：跟随界面（默认）/ English / 中文。索引 1 仍是 English，
+  兼容旧模型；索引 0 从「中文」变为「跟随界面」，这是行为变化。
+- `metadata.txt` 的 `name` 改为英文 `CA-Markov Land Change Prediction`
+  （该字段不支持按语言本地化）。
+- 顺手修复：`provider.versionInfo()` 此前写死 `0.1.0`，现在读 `metadata.txt`。
+- 验证：`scripts/check_i18n.py` 零违规（160 条译文 / 139 处调用）；
+  pytest 58 passed / 6 skipped；QGIS 3.40.15 实测 `qgis_process help camarkov:predict`
+  在中英文下分别输出对应标签；结果面板英文渲染无中文残留；
+  bandit 0、detect-secrets 0。
+
 ## 0.1.2
 
 QGIS 4 / Qt 6 兼容：消除官方 Qt6 Check 报出的全部 21 处问题，**无功能改动**。

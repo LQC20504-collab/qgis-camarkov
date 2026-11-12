@@ -6,6 +6,7 @@
 """
 
 import json
+from ..i18n import T
 
 #: 引擎必定写出的顶层键（``analyze`` / ``train`` 模式下部分值为 null）。
 REQUIRED_KEYS = (
@@ -56,12 +57,12 @@ def load(path):
         try:
             data = json.load(handle)
         except ValueError as exc:
-            raise MetricsError("metrics.json 不是合法 JSON：%s" % exc)
+            raise MetricsError(T("metrics.json 不是合法 JSON：%s") % exc)
     missing = [key for key in REQUIRED_KEYS if key not in data]
     if missing:
-        raise MetricsError("metrics.json 缺少字段：%s" % "、".join(missing))
+        raise MetricsError(T("metrics.json 缺少字段：%s") % "、".join(missing))
     if not data.get("classes"):
-        raise MetricsError("metrics.json 没有类别统计，可能被提前中断")
+        raise MetricsError(T("metrics.json 没有类别统计，可能被提前中断"))
     return data
 
 
@@ -71,22 +72,22 @@ def summary(data):
     :param data: :func:`load` 的返回值。
     :returns: 形如「预测 · 精度 OA=0.9453 Kappa=0.9205 · 1 条警告」。
     """
-    mode_text = {"analyze": "转移分析", "train": "模型训练", "predict": "变化预测"}
-    parts = [mode_text.get(data.get("mode"), data.get("mode") or "未知模式")]
+    mode_text = {"analyze": T("转移分析"), "train": T("模型训练"), "predict": T("变化预测")}
+    parts = [mode_text.get(data.get("mode"), data.get("mode") or T("未知模式"))]
 
     accuracy = data.get("accuracy")
     if accuracy:
-        parts.append("精度 OA=%.4f Kappa=%.4f" % (accuracy.get("oa", 0), accuracy.get("kappa", 0)))
+        parts.append(T("精度 OA=%.4f Kappa=%.4f") % (accuracy.get("oa", 0), accuracy.get("kappa", 0)))
     else:
-        parts.append("无精度评价")
+        parts.append(T("无精度评价"))
 
     warnings = data.get("warnings") or []
     if warnings:
-        parts.append("%d 条警告" % len(warnings))
+        parts.append(T("%d 条警告") % len(warnings))
 
     elapsed = (data.get("timing") or {}).get("total_s")
     if elapsed:
-        parts.append("耗时 %.1f 秒" % elapsed)
+        parts.append(T("耗时 %.1f 秒") % elapsed)
 
     return " · ".join(parts)
 
@@ -94,7 +95,7 @@ def summary(data):
 def class_names(data):
     """按类别值顺序取出类别名列表。"""
     rows = data.get("classes") or []
-    return [row.get("name") or ("类别 %d" % row.get("value", i)) for i, row in enumerate(rows)]
+    return [row.get("name") or (T("类别 %d") % row.get("value", i)) for i, row in enumerate(rows)]
 
 
 def figure_paths(data):
@@ -108,5 +109,6 @@ def figure_paths(data):
     for key, title in FIGURE_TITLES.items():
         path = figures.get(key)
         if path:
-            result.append((title, path))
+            # 标题属于界面文案，字典里保留中文键，显示时才翻译
+            result.append((T(title), path))
     return result
