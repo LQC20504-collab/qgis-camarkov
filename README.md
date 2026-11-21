@@ -46,12 +46,20 @@
 >
 > **要装的是 Releases 里的 `qgis_camarkov-<版本>.zip`**，它的顶层只有一个 `qgis_camarkov/`。
 
-### 从 ZIP 安装（推荐）
+### 从插件管理器安装（推荐）
+
+插件已上架官方仓库（ID 6855）：
+
+1. QGIS → 插件 → 管理并安装插件 → **全部**
+2. 搜索 **CA-Markov Land Change Prediction** → 安装
+3. 重启 QGIS；处理工具箱里应出现 **CA-Markov** 分组下的三项
+
+### 从 ZIP 安装（离线或指定版本）
 
 1. 打开 **Releases** 页面 → 展开对应版本的 **Assets**（不要点 Code）
-2. 下载 `qgis_camarkov-0.1.0.zip`
+2. 下载 `qgis_camarkov-<版本>.zip`（版本号见 Releases 列表）
 3. QGIS → 插件 → 管理并安装插件 → **从 ZIP 安装** → 选这个文件
-4. 在「已安装」里勾选「CA-Markov 土地利用变化预测」
+4. 在「已安装」里勾选 **CA-Markov Land Change Prediction**
 5. 重启 QGIS；处理工具箱里应出现 **CA-Markov** 分组下的三项
 
 装完可以自检一遍：
